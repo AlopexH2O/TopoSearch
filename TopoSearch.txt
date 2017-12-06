@@ -1,0 +1,153 @@
+[STRUCT]=Section
+
+[ALIAS]=Section
+
+[WIDTH] = 120
+
+[HELP]
+
+
+
+[BASIC]
+cn= en= inst= cbopt= inrom= lv1tm= lv2tm= lv3tm= lv4tm= sizeof= ver= 
+
+[IN]
+//analog
+inP1 "inP1 cdesc=线路1功率 edesc=Power1 jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inP2 "inP2 cdesc=线路2功率 edesc=Power2 jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inP3 "inP3 cdesc=线路3功率 edesc=Power3 jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inP4 "inP4 cdesc=线路4功率 edesc=Power4 jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inP5 "inP5 cdesc=线路5功率 edesc=Power5 jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inP6 "inP6 cdesc=线路6功率 edesc=Power6 jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0
+Prec "Prec cdesc=需要记录量 edesc=Prec  jn=否 type=i level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+//binary
+inRun1   "inRun1 cdesc=线路1运行    edesc=RunFlag1      jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inRun2   "inRun2 cdesc=线路2运行    edesc=RunFlag2      jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inRun3   "inRun3 cdesc=线路3运行    edesc=RunFlag3      jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inRun4   "inRun4 cdesc=线路4运行    edesc=RunFlag4      jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inRun5   "inRun5 cdesc=线路5运行    edesc=RunFlag5      jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inRun6   "inRun6 cdesc=线路6运行    edesc=RunFlag6      jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inFlt1   "inFlt1 cdesc=线路1故障    edesc=FaultFlag1    jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inFlt2   "inFlt2 cdesc=线路2故障    edesc=FaultFlag2    jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inFlt3   "inFlt3 cdesc=线路3故障    edesc=FaultFlag3    jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inFlt4   "inFlt4 cdesc=线路4故障    edesc=FaultFlag4    jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inFlt5   "inFlt5 cdesc=线路5故障    edesc=FaultFlag5    jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+inFlt6   "inFlt6 cdesc=线路6故障    edesc=FaultFlag6    jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+BlockP   "BlkP   cdesc=断面功率无效 edesc=BlockSectionP jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+En       "En     cdesc=断面断开使能 edesc=EnableFault   jn=否 type=b level=2 scp=用户级 STR= src= inlntp=" //$hide=0 
+
+[OUT]
+//analog
+Power1_ "P200ms1   cdesc=故障前线路1功率 edesc=P200ms1 jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Power2_ "P200ms2   cdesc=故障前线路2功率 edesc=P200ms2 jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Power3_ "P200ms3   cdesc=故障前线路3功率 edesc=P200ms3 jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Power4_ "P200ms4   cdesc=故障前线路4功率 edesc=P200ms4 jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Power5_ "P200ms5   cdesc=故障前线路5功率 edesc=P200ms5 jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Power6_ "P200ms6   cdesc=故障前线路6功率 edesc=P200ms6 jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Psec    "Psec      cdesc=断面功率        edesc=Psec    jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Psec_   "Psec200ms cdesc=故障前断面功率  edesc=Psec_   jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+Prtm    "Prtm      cdesc=动作时功率记录  edesc=Prtm    jn=否 type=i level=2 min= max= norm=1 prm=Pcoeff expect= STR= scp=用户级 attr=15 syn=%5.1f lntp= doref= daref= spre=" //$hide=0 
+
+//binary
+Run1_ "Run200ms1 cdesc=故障前线路1运行 edesc=Run200ms1 jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Run2_ "Run200ms2 cdesc=故障前线路2运行 edesc=Run200ms2 jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Run3_ "Run200ms3 cdesc=故障前线路3运行 edesc=Run200ms3 jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Run4_ "Run200ms4 cdesc=故障前线路4运行 edesc=Run200ms4 jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Run5_ "Run200ms5 cdesc=故障前线路5运行 edesc=Run200ms5 jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Run6_ "Run200ms6 cdesc=故障前线路6运行 edesc=Run200ms6 jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Valid "Valid     cdesc=断面功率有效    edesc=Valid     jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+Act   "Act       cdesc=断面断开动作    edesc=Act       jn=否 type=b level=2 min= max= norm=1 prm=1 expect= scp=用户级 attr=15 syn=%d lntp= doref= daref= spre=" //$hide=0 
+
+
+[PARA]
+//no list
+MSection "MSection cdesc=断面动作方式       edesc=MSection   jn=否 type=c  min=0 max=2     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%2d step= unit= option=1 default=0" 
+NSection "NSection cdesc=断面组成个数       edesc=NSection   jn=否 type=c  min=0 max=6     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%2d step= unit= option=1 default=0" 
+MAdd1    "MAdd1    cdesc=输入功率1取负      edesc=NegativeP1 jn=否 type=b  min=0 max=1     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%1d step= unit= option=1 default=0" 
+MAdd2    "MAdd2    cdesc=输入功率2取负      edesc=NegativeP2 jn=否 type=b  min=0 max=1     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%1d step= unit= option=1 default=0" 
+MAdd3    "MAdd3    cdesc=输入功率3取负      edesc=NegativeP3 jn=否 type=b  min=0 max=1     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%1d step= unit= option=1 default=0" 
+MAdd4    "MAdd4    cdesc=输入功率4取负      edesc=NegativeP4 jn=否 type=b  min=0 max=1     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%1d step= unit= option=1 default=0" 
+MAdd5    "MAdd5    cdesc=输入功率5取负      edesc=NegativeP5 jn=否 type=b  min=0 max=1     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%1d step= unit= option=1 default=0" 
+MAdd6    "MAdd6    cdesc=输入功率6取负      edesc=NegativeP6 jn=否 type=b  min=0 max=1     norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%1d step= unit= option=1 default=0" 
+PsDef    "PsDef    cdesc=断面功率无效默认值 edesc=InValidP   jn=否 type=iu min=0 max=65535 norm=1 prm=1 lntp= doref= daref= spre= scp= attr=15 syn=%5d step= unit= option=1 default=0" 
+//list
+
+
+[LN]
+lnClass=PVOC prefix= inst=1 lnType=NRR_PVOC_HW cn= en= key= syntax= LDeviceInst=PROT 
+
+
+[DA]
+
+[RULE]
+
+
+
+[GRAPH]
+BASIC x=-42 y=-153 w=135 h=282
+TEXTCONNECTNODE f=Arial x=6 y=36 size=6 i=0 n=inP1 px=-36 py=-117 r=4 rn=inP1 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=48 size=6 i=0 n=inP2 px=-36 py=-105 r=4 rn=inP2 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=60 size=6 i=0 n=inP3 px=-36 py=-93 r=4 rn=inP3 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=72 size=6 i=0 n=inP4 px=-36 py=-81 r=4 rn=inP4 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=84 size=6 i=0 n=inP5 px=-36 py=-69 r=4 rn=inP5 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=96 size=6 i=0 n=inP6 px=-36 py=-57 r=4 rn=inP6 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=108 size=6 i=0 n=inRun1 px=-36 py=-45 r=4 rn=inRun1 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=120 size=6 i=0 n=inRun2 px=-36 py=-33 r=4 rn=inRun2 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=132 size=6 i=0 n=inRun3 px=-36 py=-21 r=4 rn=inRun3 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=144 size=6 i=0 n=inRun4 px=-36 py=-9 r=4 rn=inRun4 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=156 size=6 i=0 n=inRun5 px=-36 py=3 r=4 rn=inRun5 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=168 size=6 i=0 n=inRun6 px=-36 py=15 r=4 rn=inRun6 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=180 size=6 i=0 n=inFlt1 px=-36 py=27 r=4 rn=inFlt1 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=192 size=6 i=0 n=inFlt2 px=-36 py=39 r=4 rn=inFlt2 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=204 size=6 i=0 n=inFlt3 px=-36 py=51 r=4 rn=inFlt3 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=216 size=6 i=0 n=inFlt4 px=-36 py=63 r=4 rn=inFlt4 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=228 size=6 i=0 n=inFlt5 px=-36 py=75 r=4 rn=inFlt5 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=240 size=6 i=0 n=inFlt6 px=-36 py=87 r=4 rn=inFlt6 b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=252 size=6 i=0 n=BlkP px=-36 py=99 r=4 rn=BlockP b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=264 size=6 i=0 n=En px=-36 py=111 r=4 rn=En b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=6 y=276 size=6 i=0 n=Prec px=-36 py=123 r=4 rn=Prec b=0 t=0 script=
+TEXTCONNECTNODE f=Arial x=129 y=36 size=6 i=0 n=P200ms1 px=87 py=-117 r=3 rn=Power1_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=48 size=6 i=0 n=P200ms2 px=87 py=-105 r=3 rn=Power2_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=60 size=6 i=0 n=P200ms3 px=87 py=-93 r=3 rn=Power3_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=72 size=6 i=0 n=P200ms4 px=87 py=-81 r=3 rn=Power4_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=84 size=6 i=0 n=P200ms5 px=87 py=-69 r=3 rn=Power5_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=96 size=6 i=0 n=P200ms6 px=87 py=-57 r=3 rn=Power6_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=108 size=6 i=0 n=Run200ms1 px=87 py=-45 r=3 rn=Run1_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=120 size=6 i=0 n=Run200ms2 px=87 py=-33 r=3 rn=Run2_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=132 size=6 i=0 n=Run200ms3 px=87 py=-21 r=3 rn=Run3_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=144 size=6 i=0 n=Run200ms4 px=87 py=-9 r=3 rn=Run4_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=156 size=6 i=0 n=Run200ms5 px=87 py=3 r=3 rn=Run5_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=168 size=6 i=0 n=Run200ms6 px=87 py=15 r=3 rn=Run6_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=180 size=6 i=0 n=Psec px=87 py=27 r=3 rn=Psec b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=192 size=6 i=0 n=Psec200ms px=87 py=39 r=3 rn=Psec_ b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=204 size=6 i=0 n=Valid px=87 py=51 r=3 rn=Valid b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=216 size=6 i=0 n=Act px=87 py=63 r=3 rn=Act b=0 t=1 script=
+TEXTCONNECTNODE f=Arial x=129 y=276 size=6 i=0 n=Prtm px=87 py=123 r=3 rn=Prtm b=0 t=1 script=
+RECT w=123 x=6 y=15 h=267 px=0 py=3 script=
+RECT w=123 x=6 y=0 h=15 px=0 py=-12 script=
+PROTEXT f=Arial x=54 y=3 size=6 i=0 n=Section px=12 py=-150 b=0 s=alias script=
+LINE ex=129 ey=102 sx=6 sy=102 px=0 py=0 script=
+LINE ex=33 ey=102 sx=33 sy=15 px=0 py=0 script=
+LINE ex=129 ey=30 sx=6 sy=30 px=0 py=0 script=
+LINE ex=93 ey=102 sx=93 sy=15 px=0 py=0 script=
+TEXT f=Arial x=102 y=18 size=6 i=0 n=输出 px=60 py=-135 b=0 script=
+TEXT f=Arial x=12 y=18 size=6 i=0 n=输入 px=-30 py=-135 b=0 script=
+TEXT f=Arial x=36 y=18 size=6 i=0 n=输入功率取负 px=-6 py=-135 b=0 script=
+LINE ex=93 ey=42 sx=33 sy=42 px=0 py=0 script=
+LINE ex=93 ey=54 sx=33 sy=54 px=0 py=0 script=
+LINE ex=93 ey=66 sx=33 sy=66 px=0 py=0 script=
+LINE ex=93 ey=78 sx=33 sy=78 px=0 py=0 script=
+LINE ex=93 ey=90 sx=33 sy=90 px=0 py=0 script=
+PARATEXT f=Arial x=57 y=33 size=6 i=0 n=0 px=15 py=-120 b=0 s=9.MAdd1.s.sv script=
+PARATEXT f=Arial x=57 y=42 size=6 i=0 n=0 px=15 py=-111 b=0 s=9.MAdd2.s.sv script=
+PARATEXT f=Arial x=57 y=54 size=6 i=0 n=0 px=15 py=-99 b=0 s=9.MAdd3.s.sv script=
+PARATEXT f=Arial x=57 y=66 size=6 i=0 n=0 px=15 py=-87 b=0 s=9.MAdd4.s.sv script=
+PARATEXT f=Arial x=57 y=78 size=6 i=0 n=0 px=15 py=-75 b=0 s=9.MAdd5.s.sv script=
+PARATEXT f=Arial x=57 y=93 size=6 i=0 n=0 px=15 py=-60 b=0 s=9.MAdd6.s.sv script=
+LINE ex=129 ey=174 sx=6 sy=174 px=0 py=0 script=
+TEXT f=Arial x=45 y=123 size=6 i=0 n=输入有效个数 px=3 py=-30 b=0 script=
+PARATEXT f=Arial x=63 y=141 size=6 i=0 n=0 px=21 py=-12 b=0 s=9.NSection.s.sv script=
+TEXT f=Arial x=48 y=183 size=6 i=0 n=动作方式 px=6 py=30 b=0 script=
+PARATEXT f=Arial x=63 y=204 size=6 i=0 n=0 px=21 py=51 b=0 s=9.MSection.s.sv script=
+TEXT f=Arial x=42 y=225 size=6 i=0 n=无效功率默认值 px=0 py=72 b=0 script=
+PARATEXT f=Arial x=63 y=243 size=6 i=0 n=0 px=21 py=90 b=0 s=9.PsDef.s.sv script=
