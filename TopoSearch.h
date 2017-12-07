@@ -11,27 +11,27 @@
 
 typedef struct {
     #include "BaseComponent.h"
-    
-    Uint8 monitor_start;						//version,memory check head  
-    
+
+    Uint8 monitor_start;						//version,memory check head
+
     //input
     Uint8 *inRun[MAX_CONN];
     Uint8 *inFlt[MAX_CONN];
 
     //parameter
     Uint16 Conn[MAX_CONN];
-    Uint8  NodeType[MAX_NODE];//0:普通节点 1:光伏并网点 2:主网并网点
+    Uint8  NodeType[MAX_NODE];//0:normal node 1:Conn_node of GF 2:Conn_node of Grid
 
     Uint8 monitor_end;//memory check end
-    
-    //////////////////////////  
-    Uint8  Stat[MAX_NODE];//节点跟主网的连接情况
-    Uint8  Act[MAX_NODE]; //光伏线跳入孤网
 
-    Uint8  Stat_[MAX_NODE];//节点跟主网的连接情况 备份用
+    //////////////////////////
+    Uint8  Stat[MAX_NODE];//the connection with Grid
+    Uint8  Act[MAX_NODE]; //the disconnecting sign with Grid
+
+    Uint8  Stat_[MAX_NODE];//bak of Stat
     Uint8  Act_total;
-    
-	Uint8  flg_seterr;   //配置有问题
+
+	Uint8  flg_seterr;   //err in setting 
 
 }TopoSearch;
 
@@ -41,4 +41,3 @@ extern void  TopoSearchModule(TopoSearch *Owner);
 
 
 #endif
-
