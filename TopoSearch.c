@@ -6,6 +6,9 @@
 /* Local function declaration */
 int initTopoSearch(TopoSearch *Owner);
 void TopoSearchModule(TopoSearch *Owner);
+void cal_node_conn(NodeType* pnt);
+
+
 
 INIT_CODE
 TopoSearch *newTopoSearch(Component *Parent,const char *Name){
@@ -30,13 +33,19 @@ TopoSearch *newTopoSearch(Component *Parent,const char *Name){
  		sprintf(str_temp,"inFlt%d type=b level=2 ",i+1);
 		defineSignalIn((Component *)Owner,(void **)(&(Owner->inFlt[i])),str_temp);
 
- 		sprintf(str_temp,"Conn%d  type=i min=0 max=65535 default=0 option=1",i+1);
-		defineParameter((Component *)Owner,(void *)&(Owner->Conn[i]),str_temp);
+ 		sprintf(str_temp,"From_Conn%d  type=i min=0 max=16 default=0 option=1",i+1);
+		defineParameter((Component *)Owner,(void *)&(Owner->From_conn[i]),str_temp);
+        sprintf(str_temp,"End_Conn%d  type=i min=0 max=16 default=0 option=1",i+1);
+		defineParameter((Component *)Owner,(void *)&(Owner->End_Conn[i]), str_temp);
     }
+    sprintf(str_temp,"NodeNum  type=i min=0 max=16 default=0 option=1");
+    defineParameter((Component *)Owner,(void *)&(Owner->Node_num), str_temp);
+    sprintf(str_temp,"ConnNum  type=i min=0 max=16 default=0 option=1");
+    defineParameter((Component *)Owner,(void *)&(Owner->Conn_num), str_temp);
 
     for (i = 0; i < MAX_NODE; ++i){
-  		sprintf(str_temp,"NodeType%d  type=b min=0 max=2 default=0 option=1",i+1);
-		defineParameter((Component *)Owner,(void *)&(Owner->NodeType[i]),str_temp);
+  		sprintf(str_temp,"type%d  type=b min=0 max=2 default=0 option=1",i+1);
+		defineParameter((Component *)Owner,(void *)&(Owner->type[i]),str_temp);
 
  		sprintf(str_temp,"Stat%d type=b level=2 ",i+1);
 		defineSignalOut((Component *)Owner,(void *)&(Owner->Stat[i]),str_temp);
@@ -66,10 +75,15 @@ int initTopoSearch(TopoSearch *Owner)
     	//*Owner->inFlt[i] = 0;
     	//Owner->Conn[i] = 0;
     //}
-    for (i = 0; i < count; ++i){
+    for (i = 0; i < MAX_NODE; ++i){
     	Owner->Stat[i] = 0;
     	Owner->Act[i] = 0;
-    	Owner->Stat_[i] = 0;
+        Owner->Stat_[i] = 0;
+        Owner->stack[i] = 0;
+        Owner->visited_Node[i] = 0;
+    }
+    for(i = 0;i < MAX_CONN;i++){
+        Owner.visited_Conn[i] = 0;
     }
     Owner->Act_total = 0;
     Owner->flg_seterr = 0;
@@ -87,98 +101,77 @@ int initTopoSearch(TopoSearch *Owner)
 RTM_CODE1
 void  TopoSearchModule(TopoSearch *Owner)
 {
-  int16 temp16;
-  int16 i;
+    Uint16 temp16;
+    int16 i, j, num_KG_checked;
+    Uint8 index;
 
-
-
-
-
-  if(FLAG_QD.bit.Fqd_Run==0)  return;  //脙禄脫脨脡脧碌莽脭脣脨脨拢卢虏禄陆酶脨脨麓娄脌铆
-
-  if(Owner->NTopoSearch==0)      return;  //露脧脙忙脦脼脨搂拢卢脰卤陆脫路碌禄脴
-
-  Owner->Valid = 1;   //脰脙露脧脙忙脫脨脨搂
-  Owner->Psec  = 0;
- 	for(i=0; i<(int16)Owner->NTopoSearch; i++)
-  {
-  	temp16 = (*Owner->inRun[i]!=0)? (int16)(*Owner->inP[i]):0;
-  	if(Owner->MAdd[i]!=0) temp16 = -temp16;
-  	Owner->Psec += temp16;
-  	Owner->Pk[i] = temp16;
-  }
-
-  if(*Owner->BlkP!=0) //脥芒虏驴PT拢卢CT露脧脧脽禄貌脝盲脣眉脭颅脪貌脭矛鲁脡碌脛露脧脙忙鹿娄脗脢脦脼脨搂
-  {
-  	Owner->Psec=(int16)(Owner->PsDef);
-  	Owner->Valid = 0;
-  }
-//麓忙麓垄露脧脙忙鹿娄脗脢
-   	Owner->PdmStorage[store_ptr]=Owner->Psec;
-   	Owner->VldStorage[store_ptr]= Owner->Valid;
-//麓忙麓垄碌卤脟掳脳麓脤卢
-    for(i=0;i<N_PSec;i++)
-    {
-    	Owner->StateStorage[store_ptr][i]=(Uint8)*Owner->inRun[i];
-    	Owner->PowerStorage[store_ptr][i]=Owner->Pk[i];
+    //初始化清空计算量
+    for (i = 0; i < MAX_NODE; ++i){
+        Owner->stack[i] = 0;
+        Owner->visited_Node[i] = 0;
     }
-////////////////////////////////////////////////////////////
- if(FLAG_QD.bit.Fqd_QD)
- {
- 	if(device_status.bit.ZGNTR)
- 	{
-    Owner->Sdbg[0] = 0;  Owner->Sdbg[1] = 0;
-    Owner->Sdbg[2] = 1;  Owner->Sdbg[3] = 1;
-    Owner->Sdbg[4] = 0;  Owner->Sdbg[5] = 0;
-    for(i = 0; i<(int16)Owner->NTopoSearch; i++)
-    {
-    	Owner->Flthold[i] |= (*Owner->inFlt[i]);      //脤酶脮垄卤锚脰戮脮没脳茅脛脷卤拢鲁脰
-    	Owner->Sdbg[0] = (Owner->Run_[i])&(Owner->Flthold[i]);  //脝么露炉脟掳脥露脭脣脟脪脤酶脮垄
-    	Owner->Sdbg[1] = (Owner->Run_[i]^0x1);                  //脝么露炉脟掳脥拢脭脣
-    	Owner->Sdbg[2] &= Owner->Sdbg[0] | Owner->Sdbg[1];      //脪陋脟贸脣霉脫脨脫脨脨搂脧脽脗路戮霉脗煤脳茫
-    	Owner->Sdbg[3] &=  Owner->Run_[i];   //脣霉脫脨脧脽戮霉脥露脭脣
-      Owner->Sdbg[4] |=  Owner->Run_[i];   //脰脕脡脵脪禄脤玫脧脽脥露脭脣
-      Owner->Sdbg[5] |=  Owner->Flthold[i];//脰脕脡脵脪禄脤玫脧脽脤酶脮垄
+    for(i = 0;i < MAX_CONN;i++){
+        Owner.visited_Conn[i] = 0;
+        Owner->isConnected[i] = 0x0;
+    }
+    //获取开关状态
+    for(i = 0;i < MAX_CONN;i++){
+        if((*Owner->inRun[i] != 0x0) && (*Owner->inFlt[i] == 0x0)){
+            Owner->isConnected[i] = 0x1;
+        }
+    }
+    Owner->pHead = 0;
+    Owner->pEnd = 0;
+    num_KG_checked = 0;//开关遍历的个数
+    for(i = 0;i < MAX_NODE;i++){
+        if(Owner->type[i] != 0x2) continue;//非主网并网点，pass
+        //检查是否已经遍历过
+        if(Owner->visited_Node[i] != 0) continue;//很遗憾，这个节点已经遍历过了
+        //hahaha,终于找到一个很单纯的节点
+        Owner->stack[pEnd] = i;
+        pEnd = (pEnd + 1) % MAX_NODE;//索引转移到下一个节点
+        //开始广度遍历所有联系节点
+        while(pHead != pEnd){
+            index = Owner->stack[pHead];
+            Owner->visited_Node[index] = 0x1;//已经不单纯了
+            pHead = (pHead + 1) % MAX_NODE;//准星瞄准下一个目标
+            //根据该点寻找其他相连节点
+            for(j = 0;j < MAX_CONN;j++){
+                if(isConnected[j] != 0) continue;//不好意思，这个开关已经被占领
+                
+            }
+
+
+
+            for(j = 0;j < MAX_NODE;j++){
+                if((temp16 & (0x1 << j)) == 0x0) continue;//该节点都没联系
+                if(Owner->TPNode[j].visited != 0x0) continue;//很遗憾，这个老乡已经被打劫过了
+                //hahah 找到了个单纯的，赶紧收入囊中
+                Owner->stack[pEnd] = j;
+                pEnd = (pEnd + 1) % MAX_NODE;
+            }
+        }
+    }
+    //跟主网相连的节点都遍历完了,开始看看有哪些孤家寡人
+    Owner->Act = 0x0;
+    for(i = 0;i < MAX_NODE;i++){
+        Owner->Stat_[i] = Owner->Stat[i];//先看看上次一有没有遍历到
+        Owner->Stat[i] = Owner->TPNode[i].visited;//被皇军拜访过得，肯定是要交皇粮的。
+        //如果是突然变化的，肯定是个受害者
+        if((Owner->Stat_[i] == 0x1) && (Owner->Stat[i] == 0x0)){
+            Owner->Act[i] = 0x1;//变化了就置跳开标志，但只有一个计算点哎，过两天俺再想想
+        } else {
+            Owner->Act[i] = 0x0;
+        }
+        Owner->Act |= Owner->Act[i];//置总的标志啊
     }
 
-   if((Owner->Valid_!=0)&&(*Owner->En!=0))  //露脧脙忙脫脨脨搂拢卢路帽脭貌脰卤陆脫虏禄脜脨,脟脪脰禄露炉脳梅1麓脦
-   {
-   	 if(Owner->MTopoSearch==0x1)
-   	 {
-   		Owner->Act = Owner->Sdbg[2]&Owner->Sdbg[3]&Owner->Sdbg[5];  //脠芦虏驴脥露脭脣拢卢脠芦虏驴脤酶脮垄
-   	 }else
-   	 {
-   		Owner->Act = Owner->Sdbg[2]&Owner->Sdbg[4]&Owner->Sdbg[5]; //脰脕脡脵脫脨脪禄禄脴脧脽脥露脭脣脟脪脤酶脮垄
-   	 }
-   }
+    
 
-   if((Owner->Act!=0)&&(Owner->ActLast==0))
-   {
-   	 Owner->Prtm = (int16)(*Owner->Prec);
-   	 Owner->ActLast = Owner->Act;
-   }
-  //  device_status.bit.flg_act |=  Owner->Act; //露炉脳梅卤锚脰戮
-  }
- }
- else
- {
- 	//录脝脣茫脢脗鹿脢脟掳200ms露脧脙忙鹿娄脗脢潞脥脳麓脤卢
-	    Owner->Psec_ = Owner->PdmStorage[read_ptr];         //露脧脙忙鹿娄脗脢
-	    Owner->Valid_= Owner->VldStorage[read_ptr];        //露脧脙忙脫脨脨搂卤锚脰戮
-    	for(i=0;i<N_PSec;i++)
-    	{
-    		Owner->Pk_[i] =Owner->PowerStorage[read_ptr][i];	//200潞脕脙毛脟掳碌脛鹿娄脗脢
-    		Owner->Run_[i]=Owner->StateStorage[read_ptr][i];	//200潞脕脙毛脟掳碌脛脥露脥拢卤锚脰戮
-    	}
-    Owner->Act = 0;      Owner->ActLast = 0;
-    Owner->Sdbg[0] = 0;  Owner->Sdbg[1] = 0;
-    Owner->Sdbg[2] = 0;  Owner->Sdbg[3] = 0;
-    Owner->Sdbg[4] = 0;  Owner->Sdbg[5] = 0;
-    Owner->Prtm    = 0;
 
-    for(i = 0; i<N_PSec; i++)
-    {
-    	Owner->Flthold[i] = 0;
-    }
-  }
+       
+
+
+
+
 }
