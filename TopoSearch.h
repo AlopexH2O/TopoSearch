@@ -23,7 +23,7 @@ typedef struct {
 
     //input
 	Uint8 *Enable;
-    Uint8 *inFlt[MAX_CONN];
+    //Uint8 *inFlt[MAX_CONN];
 	Uint8 *inCHK[MAX_CONN];//线路开关间隔检修
     Uint8 *inBLK[MAX_CONN];//线路开关间隔功能闭锁
     int16 *inIa[MAX_CONN];
@@ -43,7 +43,7 @@ typedef struct {
     Uint8 EndNode[MAX_CONN];
     int16 Iset[MAX_CONN];//电流判投运定值
     int16 Pset[MAX_CONN];//功率判投运定值
-    int16 Tset[MAX_CONN];//电气判投停延时定值
+    int16 Tset_Flt[MAX_CONN];//电气判投停延时定值
 
     Uint8 monitor_end;//memory check end
     
@@ -57,6 +57,7 @@ typedef struct {
     //内部计算变量
     Uint8 visited_Conn[MAX_CONN];
     Uint8 visited_Node[MAX_NODE];
+    Uint8 added_Node[MAX_NODE];
     Uint8 Connected[MAX_CONN];
     Uint8 Connected_[MAX_CONN];
 
@@ -73,7 +74,7 @@ typedef struct {
     int16 T_Flag_Stat_CHG[MAX_NODE];
     Uint8 Flag_Stat_FD;
     int16 T_Flag_Stat_FD;
-    Uint8 Flag_Conn_CHG;
+    Uint8 Flag_Stat_CHG_All;
     int16 T_inBLK[MAX_CONN];
     Uint8 Flag_QD_HOLD;
     //int16 T_Flag_Conn_CHG;
