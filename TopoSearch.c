@@ -1,14 +1,26 @@
+/*
+    模块：TopoSearch
+    功能：
+    正常：1）一直运行节点孤网状态判断，仅适用pos标志
+    故障：1）判断开关跳开，线路开关跳开，故障状态下置act标志 act = 节点当前孤网 & 之前联网 & 存在线路或开关跳开 & 装置启动
+
+
+        
+
+
+
+*/
+
+
 
 #include "Component.h"
 #include "TopoSearch.h"
-//#include "sub.h"
+#include "sub.h"
 #include <stdlib.h>
 /* Local function declaration */
 int initTopoSearch(TopoSearch *Owner);
+void ClearCalInfo(TopoSearch* Owner);
 void TopoSearchModule(TopoSearch *Owner);
-void cal_node_conn(NodeType* pnt);
-
-
 
 INIT_CODE
 TopoSearch *newTopoSearch(Component *Parent,const char *Name){
@@ -27,29 +39,56 @@ TopoSearch *newTopoSearch(Component *Parent,const char *Name){
     defineComponent((Component *)Owner);
 
     //input
+	defineSignalIn((Component *)Owner,(void **)(&(Owner->Enable)),"Enable type=b level=2");
     for (i = 0; i < MAX_CONN; ++i){
-		sprintf(str_temp,"inRun%d type=b level=2 ",i+1);
+		sprintf(str_temp,"inRun%d type=b level=2 ",i);
 		defineSignalIn((Component *)Owner,(void **)(&(Owner->inRun[i])),str_temp);
- 		sprintf(str_temp,"inFlt%d type=b level=2 ",i+1);
-		defineSignalIn((Component *)Owner,(void **)(&(Owner->inFlt[i])),str_temp);
+ 		sprintf(str_temp,"inFlt%d type=b level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inFlt[i])),str_temp);
+        
+        sprintf(str_temp,"inCHK%d type=b level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inCHK[i])),str_temp);
+        sprintf(str_temp,"inBLK%d type=b level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inBLK[i])),str_temp);
 
- 		sprintf(str_temp,"From_Conn%d  type=i min=0 max=16 default=0 option=1",i+1);
-		defineParameter((Component *)Owner,(void *)&(Owner->From_conn[i]),str_temp);
-        sprintf(str_temp,"End_Conn%d  type=i min=0 max=16 default=0 option=1",i+1);
-		defineParameter((Component *)Owner,(void *)&(Owner->End_Conn[i]), str_temp);
+        sprintf(str_temp,"inIa%d type=i level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inIa[i])),str_temp);
+        sprintf(str_temp,"inIb%d type=i level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inIb[i])),str_temp);
+        sprintf(str_temp,"inIc%d type=i level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inIc[i])),str_temp);
+        sprintf(str_temp,"inP%d type=i level=2 ",i);
+        defineSignalIn((Component *)Owner,(void **)(&(Owner->inP[i])),str_temp);
+
+        sprintf(str_temp,"FromNode%d  type=cu min=0 max=16 default=0 option=1",i);
+		defineParameter((Component *)Owner,(void *)&(Owner->FromNode[i]),str_temp);
+        sprintf(str_temp,"EndNode%d  type=cu min=0 max=16 default=0 option=1",i);
+        defineParameter((Component *)Owner,(void *)&(Owner->EndNode[i]), str_temp);
+
+        sprintf(str_temp,"Iset%d  type=i min=0 max=30000 default=0 unit=A option=1",i);
+        defineParameter((Component *)Owner,(void *)&(Owner->Iset[i]), str_temp);
+        sprintf(str_temp,"Pset%d  type=i min=0 max=30000 default=0 unit=MW option=1",i);
+        defineParameter((Component *)Owner,(void *)&(Owner->Pset[i]), str_temp);
+        sprintf(str_temp,"Tset%d  type=i min=0 max=30000 default=0 unit=ms option=1",i);
+        defineParameter((Component *)Owner,(void *)&(Owner->Tset[i]), str_temp);
     }
-    sprintf(str_temp,"NodeNum  type=i min=0 max=16 default=0 option=1");
+
+    sprintf(str_temp,"Node_num  type=cu min=0 max=16 default=0 option=1");
     defineParameter((Component *)Owner,(void *)&(Owner->Node_num), str_temp);
-    sprintf(str_temp,"ConnNum  type=i min=0 max=16 default=0 option=1");
+    sprintf(str_temp,"Conn_num  type=cu min=0 max=16 default=0 option=1");
     defineParameter((Component *)Owner,(void *)&(Owner->Conn_num), str_temp);
+    sprintf(str_temp,"SET_POS_FD  type=b min=0 max=1 default=0 option=1");
+    defineParameter((Component *)Owner,(void *)&(Owner->SET_POS_FD), str_temp);
+    sprintf(str_temp,"SET_CONN_FD  type=b min=0 max=1 default=0 option=1");
+    defineParameter((Component *)Owner,(void *)&(Owner->SET_CONN_FD), str_temp);
 
     for (i = 0; i < MAX_NODE; ++i){
-  		sprintf(str_temp,"type%d  type=b min=0 max=2 default=0 option=1",i+1);
-		defineParameter((Component *)Owner,(void *)&(Owner->type[i]),str_temp);
+  		sprintf(str_temp,"Type%d  type=cu min=0 max=2 default=0 option=1",i);
+		defineParameter((Component *)Owner,(void *)&(Owner->Type[i]),str_temp);
 
- 		sprintf(str_temp,"Stat%d type=b level=2 ",i+1);
+ 		sprintf(str_temp,"Stat%d type=b level=2 ",i);
 		defineSignalOut((Component *)Owner,(void *)&(Owner->Stat[i]),str_temp);
- 		sprintf(str_temp,"Act%d type=b level=2 ",i+1);
+ 		sprintf(str_temp,"Act%d type=b level=2 ",i);
 		defineSignalOut((Component *)Owner,(void *)&(Owner->Act[i]),str_temp);
     }
 
@@ -70,26 +109,9 @@ int initTopoSearch(TopoSearch *Owner)
     if  (ret != OK) {
         return ret;
     }
-    //for (i = 0; i < MAX_CONN; ++i){
-    	//*Owner->inRun[i] = 0;
-    	//*Owner->inFlt[i] = 0;
-    	//Owner->Conn[i] = 0;
-    //}
-    for (i = 0; i < MAX_NODE; ++i){
-    	Owner->Stat[i] = 0;
-    	Owner->Act[i] = 0;
-        Owner->Stat_[i] = 0;
-        Owner->stack[i] = 0;
-        Owner->visited_Node[i] = 0;
-    }
-    for(i = 0;i < MAX_CONN;i++){
-        Owner.visited_Conn[i] = 0;
-    }
-    Owner->Act_total = 0;
-    Owner->flg_seterr = 0;
-
-  addTask(2,TopoSearchModule,Owner);
-  return 0;
+    ClearCalInfo(Owner);
+    addTask(2,TopoSearchModule,Owner);
+    return 0;
 }
 
 
@@ -103,93 +125,179 @@ void  TopoSearchModule(TopoSearch *Owner)
 {
     Uint16 temp16;
     int16 i, j, num_KG_checked;
-    Uint8 index, index_other, ifrom, iend;
-    Uint8 flg;
+    Uint8 index, index_other, ifrom, iend, chg;
+    Uint8 flg, pHead, pEnd;
 
-    //检查设置是否准确
-    flg = 0x0;
-    if((Owner->Node_num > MAX_NODE)||(Owner->Conn_num > MAX_CONN))//开关节点个数设置越界
-        flg |= 0x1;
-    //开关两端节点设置有问题
+
+    if(FLAG_QD.bit.Fqd_Run==0)  return;  
+
+	//检索装置配置是否出错
+    Owner->flg_seterr = 0x0;
+    if((Owner->Node_num > MAX_NODE)||(Owner->Conn_num > MAX_CONN))
+        Owner->flg_seterr |= 0x1;
     for(i = 0;i < Owner->Conn_num;i++){
-        if(Owner->From_Conn[i] >= Owner->Node_num)
-            flg |= 0x1;
-        if(Owner->End_Conn[i] >= Owner->Node_num)
-            flg |= 0x1;
+        if(Owner->FromNode[i] >= Owner->Node_num)
+            Owner->flg_seterr |= 0x1;
+        if(Owner->EndNode[i] >= Owner->Node_num)
+            Owner->flg_seterr |= 0x1;
     }
-    //很失望，竟然设置有问题，不用干活啦，放假
-    if(flg != 0x0){
-        Owner->flg_seterr = flg;
+    if(Owner->flg_seterr != 0){
+        ClearCalInfo(Owner);
+        device_status.bit.alm_own |= Owner->flg_seterr;
+        return;        
+    }
+    //节点个数或开关个数为零，则不计
+    if((Owner->Node_num == 0) || (Owner->Conn_num == 0)){
         return;
     }
 
-    //初始化清空计算量
+    //初始化清空计算空间
     for (i = 0; i < MAX_NODE; ++i){
         Owner->stack[i] = 0;
         Owner->visited_Node[i] = 0;
     }
     for(i = 0;i < MAX_CONN;i++){
-        Owner.visited_Conn[i] = 0;
-        Owner->isConnected[i] = 0x0;
+        Owner->visited_Conn[i] = 0;
+        Owner->Connected[i] = 0x0;
     }
-    //获取开关状态
-    for(i = 0;i < MAX_CONN;i++){
-        if((*Owner->inRun[i] != 0x0) && (*Owner->inFlt[i] == 0x0)){
-            Owner->isConnected[i] = 0x1;
-        }else{
-            Owner->isConnected[i] = 0x0;
-        }
+
+    //监测开关状态变化
+    Owner->Flag_KG_CHG_All = 0x0;
+    for(i = 0;i < Owner->Conn_num;i++){
+        Owner->Connected_[i] = Owner->Connected[i];//备份前一点开关运行状态
+        Owner->Connected[i] = *Owner->inRun[i];
+        //开关检修，默认开关运行状态为0
+        if(*Owner->inCHK[i] != 0) 
+            Owner->Connected[i] = 0x0;
+        
+        Owner->Connected[i] = TSExt_Func(*Owner->inBLK[i], &Owner->T_inBLK[i], cnt_T2S);//开关功能闭锁投入，默认为1，展宽2s
+        chg = (Owner->Connected_[i] ^ Owner->Connected[i]) & Owner->Connected_[i] & 0x1;//开关变位且此前为运行状态
+        Owner->Flag_KG_CHG[i] = TSExt_Func(chg, &Owner->T_Flag_KG_CHG, cnt_T5S);//开关变位信号展宽5s
+        if(*Owner->inCHK[i] | *Owner->inBLK[i])
+            Owner->Flag_KG_CHG[i] = 0x0;//开关检修或功能闭锁，则开关位置变位置0
+        Owner->Flag_KG_CHG_All |= Owner->Flag_KG_CHG[i];
     }
-    //开始干活啦，伙计们
-    Owner->pHead = 0;
-    Owner->pEnd = 0;
+    //处理开关变位启动
+    if(Owner->SET_POS_FD & FLAG_QD.bit.Fqd_Run){
+        Owner->Flag_KG_FD = TSDlyExt_Func(Owner->Flag_KG_CHG_All, &Owner->T_Flag_KG_FD, 3, cnt_T100MS);
+        FLAG_QD.bit.Fqd_SelfQD |= Owner->Flag_KG_FD;
+    } else {
+        Owner->Flag_KG_FD   = 0;
+        Owner->T_Flag_KG_FD = 0;
+    }
+
+    //拓扑分析，计算各节点联网状态
+    pHead = 0;
+    pEnd = 0;
     for(i = 0;i < Owner->Node_num;i++){
-        if(Owner->type[i] != 0x2) continue;//非主网并网点，pass
-        //检查是否已经遍历过
-        if(Owner->visited_Node[i] != 0) continue;//很遗憾，这个节点已经遍历过了
-        //hahaha,终于找到一个很单纯的节点
+        if(Owner->Type[i] != 0x2) continue;
+        if(Owner->visited_Node[i] != 0) continue;
         Owner->stack[pEnd] = i;
-        pEnd = (pEnd + 1) % MAX_NODE;//索引转移到下一个节点
-        //开始广度遍历所有联系节点
+        pEnd = (pEnd + 1) % MAX_NODE;
         while(pHead != pEnd){
             index = Owner->stack[pHead];
-            Owner->visited_Node[index] = 0x1;//已经不单纯了
-            pHead = (pHead + 1) % MAX_NODE;//准星瞄准下一个目标
-            //根据该点寻找其他相连节点
+            Owner->visited_Node[index] = 0x1;
+            pHead = (pHead + 1) % MAX_NODE;
             for(j = 0;j < Owner->Conn_num;j++){
-                if(Owner->isConnected[j] == 0) continue;//不好意思，这个开关已经跳开了
-                if(Owner->visited_Conn[j] != 0) continue;//不好意思，这个开关已经被打劫过了
-                ifrom = Owner->From_Conn[j];
-                iend = Owner->End_Conn[j];
-                if((ifrom != index) && (iend != index)) continue;//这个开关两侧都不是想要的，不要意思啊
-                (ifrom == index) ? index_other = iend : index_other = ifrom;
-                //万事具备
-                Owner->stack[pEnd] = index_other;//开关另一端压入
+                if(Owner->Connected[j] == 0) continue;
+                if(Owner->visited_Conn[j] != 0) continue;
+                ifrom = Owner->FromNode[j];
+                iend = Owner->EndNode[j];
+                if((ifrom != index) && (iend != index)) continue;
+				if(ifrom == index){
+					index_other = iend;
+				}else{
+					index_other = ifrom;
+				}
+                Owner->stack[pEnd] = index_other;
                 pEnd = (pEnd + 1) % MAX_NODE;
-                Owner->visited_Conn[j] = 0x1;//开关遍历标志置上
+                Owner->visited_Conn[j] = 0x1;
             }
         }
     }
-    //跟主网相连的节点都遍历完了,开始看看有哪些孤家寡人
-    Owner->Act = 0x0;
-    for(i = 0;i < MAX_NODE;i++){
-        Owner->Stat_[i] = Owner->Stat[i];//先看看上次一有没有遍历到
-        Owner->Stat[i] = Owner->visited_Node[i];//被皇军拜访过得，肯定是要交皇粮的。
-        //如果是突然变化的，肯定是个受害者
-        if((Owner->Stat_[i] == 0x1) && (Owner->Stat[i] == 0x0)){
-            Owner->Act[i] = 0x1;//变化了就置跳开标志，但只有一个计算点哎，过两天俺再想想
-        } else {
-            Owner->Act[i] = 0x0;
+
+    //生成接点孤网变化状态
+    chg = 0x0;
+    Owner->Flag_Conn_CHG = 0;
+    for(i = 0;i < Owner->Node_num;i++){
+        Owner->Stat_[i] = Owner->Stat[i];
+        Owner->Stat[i] = (Owner->visited_Node[i] ^ 0x1) & 0x1;//孤网状态为0x1
+        //光伏并网节点判状态变化
+        if(Owner->Type[i] == 1){
+            chg = (Owner->Stat[i] ^ Owner->Stat_[i]) & Owner->Stat[i] & 0x1;
+            Owner->Flag_Stat_CHG[i] = TSExt_Func(chg, &Owner->T_Flag_Stat_CHG[i], cnt_T5S);
+            Owner->Flag_Conn_CHG |= Owner->Flag_Stat_CHG[i];
         }
-        Owner->Act |= Owner->Act[i];//置总的标志
+    }
+    //光伏并网点孤网启动逻辑
+    if(Owner->SET_CONN_FD & FLAG_QD.bit.Fqd_Run){
+        Owner->Flag_Stat_FD = TSDlyExt_Func(Owner->Flag_Conn_CHG, &Owner->T_Flag_Stat_FD, 3, cnt_T100MS);
+        FLAG_QD.bit.Fqd_SelfQD |= Owner->Flag_Stat_FD;
+    } else {
+        Owner->Flag_Stat_FD   = 0;
+        Owner->T_Flag_Stat_FD = 0;
     }
 
-    
+    ////////////////////////////////故障处理模块////////////////////////////////////
+    if(FLAG_QD.bit.Fqd_QD & device_status.bit.ZGNTR & (*Owner->Enable)){
+        Owner->Flag_QD_HOLD |= Owner->Flag_KG_FD;
+        Owner->Flag_QD_HOLD |= 
+    }else{
+        for(i = 0;i < MAX_NODE;i++){
+            Owner->Act[i] = 0x0;
+        }
+        Owner->Act_total = 0x0;
+        //计数器清掉
+        //TODO
+    }
 
 
-       
 
 
+    //设置光伏孤网动作标志
+    if (FLAG_QD.bit.Fqd_QD & (*Owner->Enable) & device_status.bit.ZGNTR) { //装置启动,模块使能，总功能投入
+        if(Owner->Flag_Conn_CHG){//孤网状态变化则开始置孤网动作标志
+            for(i = 0;i < Owner->Node_num;i++){
+                Owner->Act[i] = Owner->Flag_Stat_CHG[i];
+                Owner->Act_total |= Owner->Act[i];
+            }
+        }
+    }else{
+        for(i = 0;i < MAX_NODE;i++){
+            Owner->Act[i] = 0;
+        }
+        Owner->Act_total = 0;
+    }
+ 
+	
+    return;
+}
 
+
+void ClearCalInfo(TopoSearch* Owner){
+    Uint8 i;
+    for(i = 0;i < MAX_NODE;i++){
+        Owner->Stat[i] = 0x0;
+        Owner->Stat_[i] = 0x0;
+        Owner->Act[i] = 0x0;
+        Owner->visited_Node[i] = 0x0;
+        Owner->stack[i] = 0x0;
+        Owner->Flag_Stat_CHG[i] = 0x0;
+        Owner->T_Flag_Stat_CHG[i] = 0;
+    }
+    for(i = 0;i < MAX_CONN;i++){
+        Owner->visited_Conn[i] = 0x0;
+        Owner->Connected[i] = 0x0;
+        Owner->Connected_[i] = 0x0;
+    }
+    Owner->Act_total = 0x0;
+    Owner->Flag_KG_CHG = 0x0;
+    Owner->T_Flag_KG_CHG = 0;
+    Owner->Flag_KG_FD = 0x0;
+    Owner->T_Flag_KG_FD = 0;
+    Owner->Flag_Stat_FD = 0x0;
+    Owner->T_Flag_Stat_FD = 0;
+    Owner->Flag_Conn_CHG = 0x0;
+    //Owner->flg_seterr = 0x0;
     return;
 }
