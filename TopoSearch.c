@@ -168,8 +168,7 @@ void  TopoSearchModule(TopoSearch *Owner)
         Owner->Connected_[i] = Owner->Connected[i];//备份前一点开关运行状态
         Owner->Connected[i] = *Owner->inPos[i];
         //开关检修，默认开关运行状态为0
-        if(*Owner->inCHK[i] != 0) 
-            Owner->Connected[i] = 0x0;
+        if(*Owner->inCHK[i] != 0) Owner->Connected[i] = 0x0;
         
         Owner->Connected[i] = TSExt_Func(*Owner->inBLK[i], &Owner->T_inBLK[i], cnt_T2S);//开关功能闭锁投入，默认为1，展宽2s
         chg = (Owner->Connected_[i] ^ Owner->Connected[i]) & Owner->Connected_[i] & 0x1;//开关变位且此前为运行状态
@@ -235,7 +234,7 @@ void  TopoSearchModule(TopoSearch *Owner)
     }
     //光伏并网点孤网启动逻辑
     if(Owner->SET_CONN_FD & FLAG_QD.bit.Fqd_Run){
-        Owner->Flag_Stat_FD = TSDlyExt_Func(Owner->Flag_Conn_CHG, &Owner->T_Flag_Stat_FD, 3, cnt_T100MS);
+        Owner->Flag_Stat_FD = TSDlyExt_Func(Owner->Flag_Stat_CHG_All, &Owner->T_Flag_Stat_FD, 3, cnt_T100MS);
         FLAG_QD.bit.Fqd_SelfQD |= Owner->Flag_Stat_FD;
     } else {
         Owner->Flag_Stat_FD   = 0;
@@ -253,7 +252,7 @@ void  TopoSearchModule(TopoSearch *Owner)
             if(*Owner->inIb[i] <= Owner->Iset) cnt_tmp++;
             if(*Owner->inIc[i] <= Owner->Iset) cnt_tmp++;
             if(cnt_tmp >= 2) flg_tmp1 = 0x1;
-            if(fabs(*Owner->inP[i]) <= Owner->Pset) flg_tmp2 = 0x1;
+            if(abs(*Owner->inP[i]) <= Owner->Pset) flg_tmp2 = 0x1;
             //计算开关线路跳闸标志
             flg_tmp = flg_tmp1 & flg_tmp2 & Owner->Flag_KG_CHG[i];
             if(*Owner->inCHK[i] | *Owner->inBLK[i]) flg_tmp = 0x0;
@@ -268,15 +267,12 @@ void  TopoSearchModule(TopoSearch *Owner)
                 Owner->Act_total |= Owner->Act[i];
             }
         }
-
-
     }else{
         for(i = 0;i < MAX_NODE;i++){
             Owner->Act[i] = 0x0;
         }
         Owner->Act_total = 0x0;
         //计数器清掉
-        //TODO
         for(i = 0;i < MAX_NODE;i++){
             Owner->Flag_KG_Flt[i] = 0x0;
             Owner->T_Flag_KG_Flt = 0;
